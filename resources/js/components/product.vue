@@ -39,7 +39,7 @@
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
-                                <form >
+                                <form @submit.prevent="create">
                                     <div class="modal-body ">
                                         <div class="form-group">
                                             <label>Title</label>
@@ -71,6 +71,8 @@
                 </div>
             </div>
         </div>
+        <!-- set progressbar -->
+        <vue-progress-bar></vue-progress-bar>
     </div>
 </template>
 
@@ -80,10 +82,28 @@
             return {
                 form: new Form({
                     title: '',
-                    descriptino: '',
+                    discription: '',
                     photo: '',
                 })
             }
+        },
+
+        methods: {
+            create() {
+                this.$Progress.start()
+                this.form.post('/product')
+                .then(() => {
+                    $('#productModal').modal('hide')
+                    Toast.fire({
+                        type: 'success',
+                        title: 'Add product Successfully'
+                    });
+                    this.$Progress.finish()
+                })
+                .catch(() => {
+                    this.$Progress.fail()
+                });
+            },
         },
 
         mounted() {

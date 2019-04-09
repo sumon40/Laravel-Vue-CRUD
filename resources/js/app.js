@@ -10,9 +10,28 @@ require('./bootstrap');
 window.Vue = require('vue');
 // Import vform
 import { Form, HasError, AlertError } from 'vform'
- window.Form = Form;
+window.Form = Form;
 Vue.component(HasError.name, HasError)
 Vue.component(AlertError.name, AlertError)
+
+// Import sweet alert
+import Swal from 'sweetalert2'
+window.Swal = Swal;
+
+const Toast = Swal.mixin({
+  toast: true,
+  position: 'top-end',
+  showConfirmButton: false,
+  timer: 3000
+});
+// import progressbar
+import VueProgressBar from 'vue-progressbar'
+
+Vue.use(VueProgressBar, {
+  color: 'rgb(143, 255, 199)',
+  failedColor: 'red',
+  height: '3px'
+})
 
 /**
  * The following block of code may be used to automatically register your
