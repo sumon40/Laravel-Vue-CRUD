@@ -17,7 +17,7 @@ class CreateProductsTable extends Migration
             $table->bigIncrements('id');
             $table->string('title');
             $table->longText('description');
-            $table->string('photo');
+            $table->string('photo')->default('default.jpg');
             $table->timestamps();
         });
     }
