@@ -4,7 +4,7 @@
             <div class="col-md-10">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between">
-                        <h2>Laravel and Vue JS CRUD without page Reload</h2>
+                        <h2>Laravel and Vue JS CRUD Without Page Reload</h2>
                         <button type="button" class="btn btn-success" @click="newmodal">Add Product</button>
                     </div>
 

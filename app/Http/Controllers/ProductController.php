@@ -61,7 +61,6 @@ class ProductController extends Controller
                 'photo' => $filename,
             ]);
         }
-        return ['message' => 'Insert successfully'];
     }
 
     /**
@@ -124,8 +123,6 @@ class ProductController extends Controller
                 'photo' => $filename,
             ]);
         }
-
-        return ["message" => "Product Updated Successfully"];
         
     }
 
@@ -137,6 +134,9 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
+        $photo = Product::find($id)->photo;
+        $unlink = base_path('public/uploads/product/' . $photo );
+        unlink($unlink);
         Product::findOrFail($id)->delete();
         return ["message" => "Product Deleted Successfully"];
     }

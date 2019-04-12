@@ -40802,7 +40802,7 @@ var render = function() {
               { staticClass: "card-header d-flex justify-content-between" },
               [
                 _c("h2", [
-                  _vm._v("Laravel and Vue JS CRUD without page Reload")
+                  _vm._v("Laravel and Vue JS CRUD Without Page Reload")
                 ]),
                 _vm._v(" "),
                 _c(
