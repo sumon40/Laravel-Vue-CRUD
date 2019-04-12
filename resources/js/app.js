@@ -24,6 +24,7 @@ const Toast = Swal.mixin({
   showConfirmButton: false,
   timer: 3000
 });
+window.Toast = Toast;
 // import progressbar
 import VueProgressBar from 'vue-progressbar'
 
@@ -32,6 +33,9 @@ Vue.use(VueProgressBar, {
   failedColor: 'red',
   height: '3px'
 })
+
+import axios from 'axios';
+window.axios = axios;
 
 /**
  * The following block of code may be used to automatically register your

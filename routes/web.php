@@ -21,3 +21,5 @@ Route::get('/home', 'HomeController@index')->name('home');
 
 // Route for Product
 Route::resource('product', 'ProductController');
+// get all product
+Route::get('all/product', 'ProductController@allproduct');

@@ -1841,36 +1841,91 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
+      allproducts: {},
       form: new Form({
+        id: '',
         title: '',
-        discription: '',
+        description: '',
         photo: ''
       })
     };
   },
   methods: {
-    create: function create() {
+    showphoto: function showphoto(naem) {
+      return "uploads/product/" + naem;
+    },
+    load: function load() {
       var _this = this;
+
+      axios.get('all/product').then(function (_ref) {
+        var data = _ref.data;
+        return _this.allproducts = data.data;
+      });
+    },
+    onphoto: function onphoto(e) {
+      var _this2 = this;
+
+      var type = ['image/jpe', 'image/jpeg', 'image/png', 'image/gif'];
+      var file = e.target.files[0];
+      var reader = new FileReader();
+
+      if (type.includes(file['type'])) {
+        if (file['size'] <= 2097152) {
+          reader.onloadend = function (file) {
+            _this2.form.photo = reader.result;
+          };
+
+          reader.readAsDataURL(file);
+        } else {
+          this.form.photo = '';
+          Swal.fire({
+            type: 'error',
+            title: 'Oops...',
+            text: 'The maximum size of image size is 2 MB'
+          });
+        }
+      } else {
+        this.form.photo = '';
+        Swal.fire({
+          type: 'error',
+          title: 'Oops...',
+          text: 'The image must be JPG JPEG PNG GIF '
+        });
+      }
+    },
+    create: function create() {
+      var _this3 = this;
 
       this.$Progress.start();
       this.form.post('/product').then(function () {
         $('#productModal').modal('hide');
         Toast.fire({
           type: 'success',
-          title: 'Add product Successfully'
+          title: 'Coupon Created Successfully'
         });
 
-        _this.$Progress.finish();
+        _this3.$Progress.finish();
       })["catch"](function () {
-        _this.$Progress.fail();
+        _this3.$Progress.fail();
       });
     }
   },
   mounted: function mounted() {
-    console.log('Component mounted.');
+    this.load();
   }
 });
 
@@ -40677,7 +40732,35 @@ var render = function() {
           _c("div", { staticClass: "card" }, [
             _vm._m(0),
             _vm._v(" "),
-            _vm._m(1),
+            _c("div", { staticClass: "card-body" }, [
+              _c("table", { staticClass: "table table-bordered" }, [
+                _vm._m(1),
+                _vm._v(" "),
+                _c(
+                  "tbody",
+                  _vm._l(_vm.allproducts, function(product) {
+                    return _c("tr", { key: product.id }, [
+                      _c("td", [_vm._v(_vm._s(product.title))]),
+                      _vm._v(" "),
+                      _c("td", [_vm._v(_vm._s(product.description))]),
+                      _vm._v(" "),
+                      _c("td", [
+                        _c("img", {
+                          attrs: {
+                            width: "100",
+                            src: _vm.showphoto(product.photo),
+                            alt: ""
+                          }
+                        })
+                      ]),
+                      _vm._v(" "),
+                      _vm._m(2, true)
+                    ])
+                  }),
+                  0
+                )
+              ])
+            ]),
             _vm._v(" "),
             _c(
               "div",
@@ -40697,7 +40780,7 @@ var render = function() {
                   { staticClass: "modal-dialog modal-dialog-centered" },
                   [
                     _c("div", { staticClass: "modal-content" }, [
-                      _vm._m(2),
+                      _vm._m(3),
                       _vm._v(" "),
                       _c(
                         "form",
@@ -40759,26 +40842,23 @@ var render = function() {
                               [
                                 _c("label", [_vm._v("Description")]),
                                 _vm._v(" "),
-                                _c("input", {
+                                _c("textarea", {
                                   directives: [
                                     {
                                       name: "model",
                                       rawName: "v-model",
-                                      value: _vm.form.discription,
-                                      expression: "form.discription"
+                                      value: _vm.form.description,
+                                      expression: "form.description"
                                     }
                                   ],
                                   staticClass: "form-control",
                                   class: {
                                     "is-invalid": _vm.form.errors.has(
-                                      "discription"
+                                      "description"
                                     )
                                   },
-                                  attrs: {
-                                    type: "number",
-                                    name: "discription"
-                                  },
-                                  domProps: { value: _vm.form.discription },
+                                  attrs: { type: "text", name: "description" },
+                                  domProps: { value: _vm.form.description },
                                   on: {
                                     input: function($event) {
                                       if ($event.target.composing) {
@@ -40786,7 +40866,7 @@ var render = function() {
                                       }
                                       _vm.$set(
                                         _vm.form,
-                                        "discription",
+                                        "description",
                                         $event.target.value
                                       )
                                     }
@@ -40796,7 +40876,7 @@ var render = function() {
                                 _c("has-error", {
                                   attrs: {
                                     form: _vm.form,
-                                    field: "discription"
+                                    field: "description"
                                   }
                                 })
                               ],
@@ -40814,7 +40894,8 @@ var render = function() {
                                   class: {
                                     "is-invalid": _vm.form.errors.has("photo")
                                   },
-                                  attrs: { type: "file", name: "photo" }
+                                  attrs: { type: "file", name: "photo" },
+                                  on: { change: _vm.onphoto }
                                 }),
                                 _vm._v(" "),
                                 _c("has-error", {
@@ -40825,7 +40906,7 @@ var render = function() {
                             )
                           ]),
                           _vm._v(" "),
-                          _vm._m(3)
+                          _vm._m(4)
                         ]
                       )
                     ])
@@ -40872,29 +40953,29 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "card-body" }, [
-      _c("table", { staticClass: "table table-bordered" }, [
-        _c("thead", [
-          _c("tr", [
-            _c("td", [_vm._v("Title")]),
-            _vm._v(" "),
-            _c("td", [_vm._v("Discription")]),
-            _vm._v(" "),
-            _c("td", [_vm._v("Photo")]),
-            _vm._v(" "),
-            _c("td", [_vm._v("Action")])
-          ])
-        ]),
+    return _c("thead", [
+      _c("tr", [
+        _c("th", [_vm._v("Title")]),
         _vm._v(" "),
-        _c("tbody", [
-          _c("tr", [
-            _c("td", [_vm._v("Mark")]),
-            _vm._v(" "),
-            _c("td", [_vm._v("Otto")]),
-            _vm._v(" "),
-            _c("td", [_vm._v("@mdo")])
-          ])
-        ])
+        _c("th", [_vm._v("Discription")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Photo")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Action")])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("td", { staticStyle: { "font-size": "25px" } }, [
+      _c("a", { attrs: { href: "http://" } }, [
+        _c("i", { staticClass: "far fa-edit text-info" })
+      ]),
+      _vm._v("/\n                                    "),
+      _c("a", { attrs: { href: "http://" } }, [
+        _c("i", { staticClass: "fas fa-trash text-danger" })
       ])
     ])
   },
@@ -53117,6 +53198,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var sweetalert2__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(sweetalert2__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var vue_progressbar__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! vue-progressbar */ "./node_modules/vue-progressbar/dist/vue-progressbar.js");
 /* harmony import */ var vue_progressbar__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(vue_progressbar__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_3__);
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when
@@ -53138,7 +53221,8 @@ var Toast = sweetalert2__WEBPACK_IMPORTED_MODULE_1___default.a.mixin({
   position: 'top-end',
   showConfirmButton: false,
   timer: 3000
-}); // import progressbar
+});
+window.Toast = Toast; // import progressbar
 
 
 Vue.use(vue_progressbar__WEBPACK_IMPORTED_MODULE_2___default.a, {
@@ -53146,6 +53230,8 @@ Vue.use(vue_progressbar__WEBPACK_IMPORTED_MODULE_2___default.a, {
   failedColor: 'red',
   height: '3px'
 });
+
+window.axios = axios__WEBPACK_IMPORTED_MODULE_3___default.a;
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue

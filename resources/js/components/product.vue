@@ -12,17 +12,28 @@
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
-                                    <td>Title</td>
-                                    <td>Discription</td>
-                                    <td>Photo</td>
-                                    <td>Action</td>
+                                    <th>Title</th>
+                                    <th>Discription</th>
+                                    <th>Photo</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>Mark</td>
-                                    <td>Otto</td>
-                                    <td>@mdo</td>
+                                <tr v-for="product in allproducts" :key='product.id'>
+                                    <td>{{ product.title }}</td>
+                                    <td>{{ product.description }}</td>
+                                    <td>
+                                         <img width="100" :src="showphoto(product.photo)" alt="">   
+                                    </td>
+                                    <td style="font-size: 25px">
+                                        <a href="http://">
+                                            <i class="far fa-edit text-info"></i>
+                                        </a>/
+                                        <a href="http://">
+                                            <i class="fas fa-trash text-danger"></i>
+                                        </a>
+                                    </td>
+                                    
                                 </tr>
                             </tbody>
                         </table>
@@ -49,13 +60,13 @@
                                         </div>
                                         <div class="form-group">
                                             <label>Description</label>
-                                            <input v-model="form.discription" type="number" name="discription"
-                                                class="form-control" :class="{ 'is-invalid': form.errors.has('discription') }">
-                                            <has-error :form="form" field="discription"></has-error>
+                                            <textarea  v-model="form.description" type="text" name="description"
+                                                class="form-control" :class="{ 'is-invalid': form.errors.has('description') }"></textarea>
+                                            <has-error :form="form" field="description"></has-error>
                                         </div>
                                         <div class="form-group">
                                             <label>Photo</label>
-                                            <input type="file"  name="photo"
+                                            <input type="file"  name="photo" @change="onphoto"
                                                 class="form-control" :class="{ 'is-invalid': form.errors.has('photo') }">
                                             <has-error :form="form" field="photo"></has-error>
                                         </div>
@@ -80,34 +91,71 @@
     export default {
         data() {
             return {
+                allproducts: {},
                 form: new Form({
+                    id: '',
                     title: '',
-                    discription: '',
+                    description: '',
                     photo: '',
                 })
             }
         },
 
         methods: {
+            showphoto(naem) {
+                return "uploads/product/" + naem;
+            },
+            load() {
+                axios.get('all/product')
+                .then( ({data}) => (this.allproducts = data.data));
+            },
+            onphoto (e) {
+                let type = ['image/jpe', 'image/jpeg', 'image/png', 'image/gif']
+                let file = e.target.files[0];
+                let reader = new FileReader();
+                if (type.includes(file['type'])) {
+                    if (file['size'] <= 2097152) {
+                        reader.onloadend = (file) => {
+                           this.form.photo = reader.result; 
+                        }
+                        reader.readAsDataURL(file);
+                    } else {
+                        this.form.photo = ''; 
+                        Swal.fire({
+                            type: 'error',
+                            title: 'Oops...',
+                            text: 'The maximum size of image size is 2 MB',
+                        })
+                    }
+                } else {
+                    this.form.photo = ''; 
+                    Swal.fire({
+                        type: 'error',
+                        title: 'Oops...',
+                        text: 'The image must be JPG JPEG PNG GIF ',
+                    })  
+                }
+
+            },
             create() {
-                this.$Progress.start()
+                this.$Progress.start();
                 this.form.post('/product')
                 .then(() => {
-                    $('#productModal').modal('hide')
+                    $('#productModal').modal('hide');
                     Toast.fire({
                         type: 'success',
-                        title: 'Add product Successfully'
+                        title: 'Coupon Created Successfully'
                     });
-                    this.$Progress.finish()
+                    this.$Progress.finish();
                 })
                 .catch(() => {
-                    this.$Progress.fail()
+                    this.$Progress.fail();
                 });
             },
         },
 
         mounted() {
-            console.log('Component mounted.')
+            this.load();
         }
     }
 </script>
