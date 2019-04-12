@@ -1852,9 +1852,14 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
+      editmode: false,
       allproducts: {},
       form: new Form({
         id: '',
@@ -1865,8 +1870,21 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   methods: {
-    showphoto: function showphoto(naem) {
-      return "uploads/product/" + naem;
+    newmodal: function newmodal() {
+      this.editmode = false, this.form.reset();
+      $('#productModal').modal('show');
+    },
+    editmodal: function editmodal(product) {
+      this.editmode = true, this.form.reset();
+      $('#productModal').modal('show');
+      this.form.fill(product);
+    },
+    editmodalphoto: function editmodalphoto() {
+      var photo = this.form.photo.length > 200 ? this.form.photo : "uploads/product/" + this.form.photo;
+      return photo;
+    },
+    showphoto: function showphoto(name) {
+      return "uploads/product/" + name;
     },
     load: function load() {
       var _this = this;
@@ -1915,17 +1933,40 @@ __webpack_require__.r(__webpack_exports__);
         $('#productModal').modal('hide');
         Toast.fire({
           type: 'success',
-          title: 'Coupon Created Successfully'
+          title: 'Product Created Successfully'
         });
+        without.$emit('liveload');
 
         _this3.$Progress.finish();
       })["catch"](function () {
         _this3.$Progress.fail();
       });
+    },
+    update: function update() {
+      var _this4 = this;
+
+      this.$Progress.start();
+      this.form.put('/product/' + this.form.id).then(function () {
+        $('#productModal').modal('hide');
+        Toast.fire({
+          type: 'success',
+          title: 'Product Updated Successfully'
+        });
+        without.$emit('liveload');
+
+        _this4.$Progress.finish();
+      })["catch"](function () {
+        _this4.$Progress.fail();
+      });
     }
   },
   mounted: function mounted() {
+    var _this5 = this;
+
     this.load();
+    without.$on('liveload', function () {
+      _this5.load();
+    });
   }
 });
 
@@ -40730,11 +40771,29 @@ var render = function() {
       _c("div", { staticClass: "row justify-content-center" }, [
         _c("div", { staticClass: "col-md-10" }, [
           _c("div", { staticClass: "card" }, [
-            _vm._m(0),
+            _c(
+              "div",
+              { staticClass: "card-header d-flex justify-content-between" },
+              [
+                _c("h2", [
+                  _vm._v("Laravel and Vue JS CRUD without page Reload")
+                ]),
+                _vm._v(" "),
+                _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-success",
+                    attrs: { type: "button" },
+                    on: { click: _vm.newmodal }
+                  },
+                  [_vm._v("Add Product")]
+                )
+              ]
+            ),
             _vm._v(" "),
             _c("div", { staticClass: "card-body" }, [
               _c("table", { staticClass: "table table-bordered" }, [
-                _vm._m(1),
+                _vm._m(0),
                 _vm._v(" "),
                 _c(
                   "tbody",
@@ -40748,13 +40807,29 @@ var render = function() {
                         _c("img", {
                           attrs: {
                             width: "100",
+                            height: "100",
                             src: _vm.showphoto(product.photo),
                             alt: ""
                           }
                         })
                       ]),
                       _vm._v(" "),
-                      _vm._m(2, true)
+                      _c("td", { staticStyle: { "font-size": "25px" } }, [
+                        _c(
+                          "a",
+                          {
+                            attrs: { href: "#" },
+                            on: {
+                              click: function($event) {
+                                return _vm.editmodal(product)
+                              }
+                            }
+                          },
+                          [_c("i", { staticClass: "far fa-edit text-info" })]
+                        ),
+                        _vm._v("/\n                                    "),
+                        _vm._m(1, true)
+                      ])
                     ])
                   }),
                   0
@@ -40764,23 +40839,50 @@ var render = function() {
             _vm._v(" "),
             _c(
               "div",
-              {
-                staticClass: "modal fade",
-                attrs: {
-                  id: "productModal",
-                  tabindex: "-1",
-                  role: "dialog",
-                  "aria-labelledby": "exampleModalCenterTitle",
-                  "aria-hidden": "true"
-                }
-              },
+              { staticClass: "modal fade", attrs: { id: "productModal" } },
               [
                 _c(
                   "div",
                   { staticClass: "modal-dialog modal-dialog-centered" },
                   [
                     _c("div", { staticClass: "modal-content" }, [
-                      _vm._m(3),
+                      _c("div", { staticClass: "modal-header" }, [
+                        _c(
+                          "h5",
+                          {
+                            directives: [
+                              {
+                                name: "show",
+                                rawName: "v-show",
+                                value: !_vm.editmode,
+                                expression: "!editmode"
+                              }
+                            ],
+                            staticClass: "modal-title",
+                            attrs: { id: "exampleModalCenterTitle" }
+                          },
+                          [_vm._v("Add Product")]
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "h5",
+                          {
+                            directives: [
+                              {
+                                name: "show",
+                                rawName: "v-show",
+                                value: _vm.editmode,
+                                expression: "editmode"
+                              }
+                            ],
+                            staticClass: "modal-title",
+                            attrs: { id: "exampleModalCenterTitle" }
+                          },
+                          [_vm._v("Update Product")]
+                        ),
+                        _vm._v(" "),
+                        _vm._m(2)
+                      ]),
                       _vm._v(" "),
                       _c(
                         "form",
@@ -40788,7 +40890,7 @@ var render = function() {
                           on: {
                             submit: function($event) {
                               $event.preventDefault()
-                              return _vm.create($event)
+                              _vm.editmode ? _vm.update() : _vm.create()
                             }
                           }
                         },
@@ -40900,13 +41002,77 @@ var render = function() {
                                 _vm._v(" "),
                                 _c("has-error", {
                                   attrs: { form: _vm.form, field: "photo" }
+                                }),
+                                _vm._v(" "),
+                                _c("img", {
+                                  directives: [
+                                    {
+                                      name: "show",
+                                      rawName: "v-show",
+                                      value: _vm.editmode,
+                                      expression: "editmode"
+                                    }
+                                  ],
+                                  attrs: {
+                                    width: "100",
+                                    src: _vm.editmode
+                                      ? _vm.editmodalphoto()
+                                      : "",
+                                    alt: ""
+                                  }
                                 })
                               ],
                               1
                             )
                           ]),
                           _vm._v(" "),
-                          _vm._m(4)
+                          _c("div", { staticClass: "modal-footer" }, [
+                            _c(
+                              "button",
+                              {
+                                staticClass: "btn btn-danger",
+                                attrs: {
+                                  type: "button",
+                                  "data-dismiss": "modal"
+                                }
+                              },
+                              [_vm._v("Close")]
+                            ),
+                            _vm._v(" "),
+                            _c(
+                              "button",
+                              {
+                                directives: [
+                                  {
+                                    name: "show",
+                                    rawName: "v-show",
+                                    value: !_vm.editmode,
+                                    expression: "!editmode"
+                                  }
+                                ],
+                                staticClass: "btn btn-primary",
+                                attrs: { type: "submit" }
+                              },
+                              [_vm._v("Create")]
+                            ),
+                            _vm._v(" "),
+                            _c(
+                              "button",
+                              {
+                                directives: [
+                                  {
+                                    name: "show",
+                                    rawName: "v-show",
+                                    value: _vm.editmode,
+                                    expression: "editmode"
+                                  }
+                                ],
+                                staticClass: "btn btn-primary",
+                                attrs: { type: "submit" }
+                              },
+                              [_vm._v("Update")]
+                            )
+                          ])
                         ]
                       )
                     ])
@@ -40928,31 +41094,6 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c(
-      "div",
-      { staticClass: "card-header d-flex justify-content-between" },
-      [
-        _c("h2", [_vm._v("CRUD")]),
-        _vm._v(" "),
-        _c(
-          "button",
-          {
-            staticClass: "btn btn-success",
-            attrs: {
-              type: "button",
-              "data-toggle": "modal",
-              "data-target": "#productModal"
-            }
-          },
-          [_vm._v("Add Product")]
-        )
-      ]
-    )
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
     return _c("thead", [
       _c("tr", [
         _c("th", [_vm._v("Title")]),
@@ -40969,64 +41110,26 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("td", { staticStyle: { "font-size": "25px" } }, [
-      _c("a", { attrs: { href: "http://" } }, [
-        _c("i", { staticClass: "far fa-edit text-info" })
-      ]),
-      _vm._v("/\n                                    "),
-      _c("a", { attrs: { href: "http://" } }, [
-        _c("i", { staticClass: "fas fa-trash text-danger" })
-      ])
+    return _c("a", { attrs: { href: "#" } }, [
+      _c("i", { staticClass: "fas fa-trash text-danger" })
     ])
   },
   function() {
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "modal-header" }, [
-      _c(
-        "h5",
-        {
-          staticClass: "modal-title",
-          attrs: { id: "exampleModalCenterTitle" }
-        },
-        [_vm._v("Add Product")]
-      ),
-      _vm._v(" "),
-      _c(
-        "button",
-        {
-          staticClass: "close",
-          attrs: {
-            type: "button",
-            "data-dismiss": "modal",
-            "aria-label": "Close"
-          }
-        },
-        [_c("span", { attrs: { "aria-hidden": "true" } }, [_vm._v("×")])]
-      )
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "modal-footer" }, [
-      _c(
-        "button",
-        {
-          staticClass: "btn btn-danger",
-          attrs: { type: "button", "data-dismiss": "modal" }
-        },
-        [_vm._v("Close")]
-      ),
-      _vm._v(" "),
-      _c(
-        "button",
-        { staticClass: "btn btn-primary", attrs: { type: "submit" } },
-        [_vm._v("Create")]
-      )
-    ])
+    return _c(
+      "button",
+      {
+        staticClass: "close",
+        attrs: {
+          type: "button",
+          "data-dismiss": "modal",
+          "aria-label": "Close"
+        }
+      },
+      [_c("span", { attrs: { "aria-hidden": "true" } }, [_vm._v("×")])]
+    )
   }
 ]
 render._withStripped = true
@@ -53231,7 +53334,9 @@ Vue.use(vue_progressbar__WEBPACK_IMPORTED_MODULE_2___default.a, {
   height: '3px'
 });
 
-window.axios = axios__WEBPACK_IMPORTED_MODULE_3___default.a;
+window.axios = axios__WEBPACK_IMPORTED_MODULE_3___default.a; // Custom event
+
+window.without = new Vue();
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue

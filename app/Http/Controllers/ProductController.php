@@ -95,7 +95,37 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'title' => 'required',
+            'description' => 'required',
+        ]);
+
+        Product::findOrFail($id)->update([
+            'title' => $request->title,
+            'description' => $request->description,
+        ]);
+
+        $getcurrentphoto = Product::find($request->id)->photo;
+
+        if($request->photo != $getcurrentphoto) {
+            if($getcurrentphoto != 'default.png') {
+                $delete_old_photo = base_path('public/uploads/product/' . $getcurrentphoto);
+                unlink($delete_old_photo);
+            }
+
+            $getphoto = $request->photo;
+            $image_parts = explode(";base64,", $getphoto);
+            $image_type_aux = explode("image/", $image_parts[0]);
+            $image_type = $image_type_aux[1];
+            // $image_base64 = base64_decode($image_parts[1]);
+            $filename = $id . '.' . $image_type;
+            Image::make($getphoto)->save(base_path('public/uploads/product/' . $filename), 90);
+            // Save image file id name 
+            Product::findOrFail($id)->update([
+                'photo' => $filename,
+            ]);
+        }
+        
     }
 
     /**

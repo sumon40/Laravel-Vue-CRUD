@@ -36,6 +36,8 @@ Vue.use(VueProgressBar, {
 
 import axios from 'axios';
 window.axios = axios;
+// Custom event
+window.without = new Vue();
 
 /**
  * The following block of code may be used to automatically register your

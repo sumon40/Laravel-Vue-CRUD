@@ -4,8 +4,8 @@
             <div class="col-md-10">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between">
-                        <h2>CRUD</h2>
-                        <button type="button" class="btn btn-success"  data-toggle="modal" data-target="#productModal">Add Product</button>
+                        <h2>Laravel and Vue JS CRUD without page Reload</h2>
+                        <button type="button" class="btn btn-success" @click="newmodal">Add Product</button>
                     </div>
 
                     <div class="card-body">
@@ -23,13 +23,13 @@
                                     <td>{{ product.title }}</td>
                                     <td>{{ product.description }}</td>
                                     <td>
-                                         <img width="100" :src="showphoto(product.photo)" alt="">   
+                                         <img width="100" height="100" :src="showphoto(product.photo)" alt="">   
                                     </td>
                                     <td style="font-size: 25px">
-                                        <a href="http://">
+                                        <a href="#" @click="editmodal(product)">
                                             <i class="far fa-edit text-info"></i>
                                         </a>/
-                                        <a href="http://">
+                                        <a href="#">
                                             <i class="fas fa-trash text-danger"></i>
                                         </a>
                                     </td>
@@ -41,16 +41,17 @@
 
 
                     <!-- Modal -->
-                    <div class="modal fade" id="productModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                    <div class="modal fade" id="productModal">
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="exampleModalCenterTitle">Add Product</h5>
+                                    <h5 v-show="!editmode" class="modal-title" id="exampleModalCenterTitle">Add Product</h5>
+                                    <h5 v-show="editmode" class="modal-title" id="exampleModalCenterTitle">Update Product</h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
-                                <form @submit.prevent="create">
+                                <form @submit.prevent="editmode ? update() : create()">
                                     <div class="modal-body ">
                                         <div class="form-group">
                                             <label>Title</label>
@@ -69,11 +70,14 @@
                                             <input type="file"  name="photo" @change="onphoto"
                                                 class="form-control" :class="{ 'is-invalid': form.errors.has('photo') }">
                                             <has-error :form="form" field="photo"></has-error>
+
+                                            <img width="100" v-show="editmode" :src="editmode ? editmodalphoto() : ''" alt="">
                                         </div>
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-                                        <button type="submit" class="btn btn-primary">Create</button>
+                                        <button v-show="!editmode" type="submit" class="btn btn-primary">Create</button>
+                                        <button v-show="editmode" type="submit" class="btn btn-primary">Update</button>
                                     </div>
                                 </form>
                             </div>
@@ -91,6 +95,7 @@
     export default {
         data() {
             return {
+                editmode: false,
                 allproducts: {},
                 form: new Form({
                     id: '',
@@ -102,8 +107,23 @@
         },
 
         methods: {
-            showphoto(naem) {
-                return "uploads/product/" + naem;
+            newmodal () {
+               this.editmode = false,
+               this.form.reset();
+               $('#productModal').modal('show'); 
+            },
+            editmodal (product) {
+               this.editmode = true,
+               this.form.reset();
+               $('#productModal').modal('show');
+               this.form.fill(product); 
+            },
+            editmodalphoto() {
+                let photo = (this.form.photo.length > 200) ? this.form.photo : "uploads/product/" + this.form.photo;
+                return photo;
+            },
+            showphoto(name) {
+                return "uploads/product/" + name;
             },
             load() {
                 axios.get('all/product')
@@ -144,18 +164,38 @@
                     $('#productModal').modal('hide');
                     Toast.fire({
                         type: 'success',
-                        title: 'Coupon Created Successfully'
+                        title: 'Product Created Successfully'
                     });
+                    without.$emit('liveload');
                     this.$Progress.finish();
                 })
                 .catch(() => {
                     this.$Progress.fail();
                 });
             },
+            update () {
+                this.$Progress.start();
+                this.form.put('/product/' + this.form.id)
+                .then( () => {
+                    $('#productModal').modal('hide');
+                    Toast.fire({
+                        type: 'success',
+                        title: 'Product Updated Successfully'
+                    });
+                    without.$emit('liveload');
+                    this.$Progress.finish();
+                })
+                .catch( () => {
+                    this.$Progress.fail();
+                });
+            }
         },
 
         mounted() {
             this.load();
+            without.$on('liveload', () => {
+                this.load();
+            });
         }
     }
 </script>
