@@ -135,8 +135,11 @@ class ProductController extends Controller
     public function destroy($id)
     {
         $photo = Product::find($id)->photo;
-        $unlink = base_path('public/uploads/product/' . $photo );
-        unlink($unlink);
+        if($photo != 'default.png') {
+            $unlink = base_path('public/uploads/product/' . $photo );
+            unlink($unlink);
+        }
+        
         Product::findOrFail($id)->delete();
         return ["message" => "Product Deleted Successfully"];
     }
