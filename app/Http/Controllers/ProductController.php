@@ -61,7 +61,7 @@ class ProductController extends Controller
                 'photo' => $filename,
             ]);
         }
-        return ['message' => 'Insert successfu'];
+        return ['message' => 'Insert successfully'];
     }
 
     /**
@@ -104,9 +104,9 @@ class ProductController extends Controller
             'title' => $request->title,
             'description' => $request->description,
         ]);
-
+        // Get photo name from databse
         $getcurrentphoto = Product::find($request->id)->photo;
-
+        // If Current photo Will not do anything 
         if($request->photo != $getcurrentphoto) {
             if($getcurrentphoto != 'default.png') {
                 $delete_old_photo = base_path('public/uploads/product/' . $getcurrentphoto);
@@ -117,7 +117,6 @@ class ProductController extends Controller
             $image_parts = explode(";base64,", $getphoto);
             $image_type_aux = explode("image/", $image_parts[0]);
             $image_type = $image_type_aux[1];
-            // $image_base64 = base64_decode($image_parts[1]);
             $filename = $id . '.' . $image_type;
             Image::make($getphoto)->save(base_path('public/uploads/product/' . $filename), 90);
             // Save image file id name 
@@ -125,6 +124,8 @@ class ProductController extends Controller
                 'photo' => $filename,
             ]);
         }
+
+        return ["message" => "Product Updated Successfully"];
         
     }
 
@@ -136,6 +137,7 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        //
+        Product::findOrFail($id)->delete();
+        return ["message" => "Product Deleted Successfully"];
     }
 }

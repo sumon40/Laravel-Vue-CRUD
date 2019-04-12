@@ -29,7 +29,7 @@
                                         <a href="#" @click="editmodal(product)">
                                             <i class="far fa-edit text-info"></i>
                                         </a>/
-                                        <a href="#">
+                                        <a href="#" @click="deleteproduct(product.id)">
                                             <i class="fas fa-trash text-danger"></i>
                                         </a>
                                     </td>
@@ -188,7 +188,36 @@
                 .catch( () => {
                     this.$Progress.fail();
                 });
-            }
+            },
+            deleteproduct(id) {
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#2d995b',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.value) {
+                        this.$Progress.start();
+                        this.form.delete('/product/' +id )
+                        .then( () => {
+                            Swal.fire(
+                                'Deleted!',
+                                'Your file has been deleted.',
+                                'success'
+                            )
+                            without.$emit('liveload');
+                            this.$Progress.finish();
+                        })
+                        .catch( () => {
+                            this.$Progress.fail();
+                        });
+                        
+                    }
+                })
+            },
         },
 
         mounted() {

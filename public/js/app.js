@@ -1958,14 +1958,40 @@ __webpack_require__.r(__webpack_exports__);
       })["catch"](function () {
         _this4.$Progress.fail();
       });
+    },
+    deleteproduct: function deleteproduct(id) {
+      var _this5 = this;
+
+      Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        type: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#2d995b',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+      }).then(function (result) {
+        if (result.value) {
+          _this5.$Progress.start();
+
+          _this5.form["delete"]('/product/' + id).then(function () {
+            Swal.fire('Deleted!', 'Your file has been deleted.', 'success');
+            without.$emit('liveload');
+
+            _this5.$Progress.finish();
+          })["catch"](function () {
+            _this5.$Progress.fail();
+          });
+        }
+      });
     }
   },
   mounted: function mounted() {
-    var _this5 = this;
+    var _this6 = this;
 
     this.load();
     without.$on('liveload', function () {
-      _this5.load();
+      _this6.load();
     });
   }
 });
@@ -40828,7 +40854,18 @@ var render = function() {
                           [_c("i", { staticClass: "far fa-edit text-info" })]
                         ),
                         _vm._v("/\n                                    "),
-                        _vm._m(1, true)
+                        _c(
+                          "a",
+                          {
+                            attrs: { href: "#" },
+                            on: {
+                              click: function($event) {
+                                return _vm.deleteproduct(product.id)
+                              }
+                            }
+                          },
+                          [_c("i", { staticClass: "fas fa-trash text-danger" })]
+                        )
                       ])
                     ])
                   }),
@@ -40881,7 +40918,7 @@ var render = function() {
                           [_vm._v("Update Product")]
                         ),
                         _vm._v(" "),
-                        _vm._m(2)
+                        _vm._m(1)
                       ]),
                       _vm._v(" "),
                       _c(
@@ -41104,14 +41141,6 @@ var staticRenderFns = [
         _vm._v(" "),
         _c("th", [_vm._v("Action")])
       ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("a", { attrs: { href: "#" } }, [
-      _c("i", { staticClass: "fas fa-trash text-danger" })
     ])
   },
   function() {
